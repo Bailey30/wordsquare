@@ -94,17 +94,20 @@ class WordSquare {
       })
       .sort();
 
-    console.log({ potentialWords });
     return potentialWords;
   }
 
+  /**
+   * Validates whether a given word contains only the characters in the provided string
+   * and is the size of square given to the class.
+   */
   isPotentialWord(input, word) {
-    // ^: from the first character (so ou can have leading chars that are not a or b)
-    // [ab]: any character which is a or b
+    // ^: from the first character
+    // []: any character between the brackets
     // +: this found one or more times n succession (can't have other characters in between).
-    // $: until the end (so, you can't have trailing chars that are not a or b)
-    //
+    // $: until the end
     const regex = new RegExp(`^[${input}]+$`);
+
     const potential = word.length === parseInt(this.size) && word.match(regex);
     return !!potential;
   }
