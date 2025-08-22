@@ -18,8 +18,6 @@ class WordSquare {
     this.size = parseInt(size);
     this.input = input;
     this.dict = this.filterPotentialWords(dict);
-
-    this.buildGrid();
   }
 
   buildGrid() {
@@ -31,18 +29,17 @@ class WordSquare {
 
       if (this.isPotentialWord(this.input, this.dict[i])) {
         tempInput = this.removeCharsFromInput(tempInput, this.dict[i]);
-        this.getWord(wordGrid, 1, tempInput);
+        const found = this.getWord(wordGrid, 1, tempInput);
+        if (found) {
+          return true;
+        }
       }
     }
   }
 
   getWord(wordSquare, row, filteredInput) {
-    if (row === this.size) {
-      wordSquare.forEach((word) => {
-        console.log(word);
-      });
-      console.log("");
-
+    if (!filteredInput) {
+      this.validSquare = wordSquare;
       return true;
     }
 
@@ -57,12 +54,19 @@ class WordSquare {
         word.startsWith(prefix)
       ) {
         const nextSquare = [...wordSquare, word];
-        const nextFiltered = this.removeCharsFromInput(filteredInput, word);
-        if (nextFiltered) {
-          this.getWord(nextSquare, row + 1, nextFiltered);
+        const nextFilteredInput = this.removeCharsFromInput(
+          filteredInput,
+          word,
+        );
+
+        if (this.getWord(nextSquare, row + 1, nextFilteredInput)) {
+          return true;
+        } else {
+          // Continue checking posssible words on this "level".
         }
       }
     }
+    return false;
   }
 
   updatePrefix(wordSquare, row) {
@@ -75,16 +79,15 @@ class WordSquare {
   }
 
   removeCharsFromInput(chars, word) {
-    const toRemove = word.split("");
-    const charsArr = chars.split("");
-    for (let i = 0; i < charsArr.length; i++) {
-      if (toRemove.includes(charsArr[i])) {
-        charsArr.splice(i, 1);
-        toRemove.splice(toRemove.indexOf(chars[i]), 1);
+    const tempCharsArr = chars.split("");
+
+    for (const char of word) {
+      if (chars.includes(char)) {
+        tempCharsArr.splice(tempCharsArr.indexOf(char), 1);
       }
     }
 
-    return charsArr.join("");
+    return tempCharsArr.join("");
   }
 
   filterPotentialWords(dict) {
@@ -111,13 +114,25 @@ class WordSquare {
     const potential = word.length === parseInt(this.size) && word.match(regex);
     return !!potential;
   }
+
+  print(wordSquare) {
+    wordSquare.forEach((word) => {
+      console.log(word);
+    });
+  }
+
+  printValidSquare() {
+    this.print(this.validSquare);
+  }
 }
 
 function main([size, input]) {
   const dict = new Dictionary();
   const words = dict.fromFile("dictionary.txt");
 
-  new WordSquare(size, input, words);
+  const wordSquare = new WordSquare(size, input, words);
+  wordSquare.buildGrid();
+  wordSquare.printValidSquare();
 }
 
 if (process.argv.length > 4) {
