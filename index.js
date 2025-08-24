@@ -13,6 +13,7 @@ class WordSquare {
   size;
   input;
   dict;
+  validSquare = [];
 
   constructor(size, input, dict) {
     this.size = parseInt(size);
@@ -20,24 +21,11 @@ class WordSquare {
     this.dict = this.filterPotentialWords(dict);
   }
 
-  buildGrid() {
-    for (let i = 0; i < this.dict.length; i++) {
-      let tempInput = this.input;
-
-      const wordGrid = [];
-      wordGrid.push(this.dict[i]);
-
-      if (this.isPotentialWord(this.input, this.dict[i])) {
-        tempInput = this.removeCharsFromInput(tempInput, this.dict[i]);
-        const found = this.getWord(wordGrid, 1, tempInput);
-        if (found) {
-          return true;
-        }
-      }
-    }
+  generate() {
+    this.findWords(this.validSquare, 0, this.input);
   }
 
-  getWord(wordSquare, row, filteredInput) {
+  findWords(wordSquare, row, filteredInput) {
     if (!filteredInput) {
       this.validSquare = wordSquare;
       return true;
@@ -59,7 +47,7 @@ class WordSquare {
           word,
         );
 
-        if (this.getWord(nextSquare, row + 1, nextFilteredInput)) {
+        if (this.findWords(nextSquare, row + 1, nextFilteredInput)) {
           return true;
         } else {
           // Continue checking posssible words on this "level".
@@ -74,7 +62,6 @@ class WordSquare {
     for (let r = 0; r < wordSquare.length; r++) {
       prefix += wordSquare[r][row];
     }
-
     return prefix;
   }
 
@@ -131,7 +118,8 @@ function main([size, input]) {
   const words = dict.fromFile("dictionary.txt");
 
   const wordSquare = new WordSquare(size, input, words);
-  wordSquare.buildGrid();
+  // wordSquare.buildGrid();
+  wordSquare.generate();
   wordSquare.printValidSquare();
 }
 
